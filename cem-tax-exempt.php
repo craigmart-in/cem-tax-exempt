@@ -36,7 +36,7 @@ class cem_tax_exempt {
         add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'taxexempt_checkout_update_order_meta') );
 
         // add custom field to invoice email
-        add_action( 'woocommerce_email_after_order_table', array( $this, 'taxexempt_custom_invoice_fields'), 20, 1 );
+        add_action( 'woocommerce_email_after_order_table', array( $this, 'taxexempt_custom_invoice_fields'), 30, 1 );
     }
 
     public function taxexempt_scripts() {
