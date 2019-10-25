@@ -4,7 +4,7 @@
  * Plugin Name: CEM Tax Exempt
  * Plugin URI: https://github.com/craigmart-in/
  * Description: Tax Exempt Form during checkout.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Craig Martin
  * Author URI: https://craigmart.in
  * Text Domain: cem-tax-exempt
@@ -31,12 +31,14 @@ class cem_tax_exempt {
 
         add_filter( 'woocommerce_checkout_fields' , array( $this, 'taxexempt_checkout_fields') );
         add_action('woocommerce_before_order_notes', array( $this, 'taxexempt_before_order_notes') );
+		add_action('woocommerce_before_order_notes', array( $this, 'howheard_before_order_notes') );
 
         add_action( 'woocommerce_checkout_update_order_review', array( $this, 'taxexempt_checkout_update_order_review' ));
         add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'taxexempt_checkout_update_order_meta') );
 
         // add custom field to invoice email
         add_action( 'woocommerce_email_after_order_table', array( $this, 'taxexempt_custom_invoice_fields'), 30, 1 );
+		add_action( 'woocommerce_email_after_order_table', array( $this, 'howheard_custom_invoice_fields'), 31, 1 );
     }
 
     public function taxexempt_scripts() {
@@ -86,6 +88,22 @@ class cem_tax_exempt {
 
         echo '</div>';
     }
+	
+	public function howheard_before_order_notes( $checkout ) {
+
+        echo '<div style="clear: both"></div>
+        </br>
+        <div>';
+
+        woocommerce_form_field( 'how_heard_about_us', array(
+            'type'          => 'textarea',
+            'class'         => array('form-row notes', 'howheard', 'textarea'),
+            'label'         => __('How did you hear about us?'),
+			'placeholder'	=> 'For example, from a conference.'
+            ), $checkout->get_value( 'how_heard_about_us' ));
+
+        echo '</div>';
+    }
 
     public function taxexempt_checkout_update_order_review( $post_data ) {
         global $woocommerce;
@@ -108,6 +126,8 @@ class cem_tax_exempt {
         if ($_POST['tax_exempt_id'])
             update_post_meta( $order_id, 'Tax Exempt Id', esc_attr($_POST['tax_exempt_id']));
         }
+		
+		update_post_meta( $order_id, 'How did you hear about us?', esc_attr($_POST['how_heard_about_us']));
     }
 
     public function taxexempt_custom_invoice_fields( $order ) {
@@ -117,6 +137,14 @@ class cem_tax_exempt {
         <p><strong><?php _e('Tax Exempt Id:', 'woocommerce'); ?></strong> <?php echo get_post_meta( $order->get_id(), 'Tax Exempt Id', true ); ?></p>
         <?php
     }
+	
+	public function howheard_custom_invoice_fields( $order ) {
+        ?>
+        <h3>Tax Exempt Details</h3>
+        <p><strong><?php _e('How did you hear about us?:', 'woocommerce'); ?></strong> <?php echo get_post_meta( $order->get_id(), 'How did you hear about us?', true ); ?></p>
+        <?php
+    }
+    
     
     /** Helper Methods ******************************************************/
 
