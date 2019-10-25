@@ -4,7 +4,7 @@
  * Plugin Name: CEM Tax Exempt
  * Plugin URI: https://github.com/craigmart-in/
  * Description: Tax Exempt Form during checkout.
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Craig Martin
  * Author URI: https://craigmart.in
  * Text Domain: cem-tax-exempt
@@ -38,7 +38,7 @@ class cem_tax_exempt {
 
         // add custom field to invoice email
         add_action( 'woocommerce_email_after_order_table', array( $this, 'taxexempt_custom_invoice_fields'), 30, 1 );
-		add_action( 'woocommerce_email_after_order_table', array( $this, 'howheard_custom_invoice_fields'), 31, 1 );
+		add_action( 'woocommerce_email_after_order_table', array( $this, 'howheard_custom_invoice_fields'), 31, 2 );
     }
 
     public function taxexempt_scripts() {
@@ -131,17 +131,24 @@ class cem_tax_exempt {
     }
 
     public function taxexempt_custom_invoice_fields( $order ) {
+		$taxExemptName = get_post_meta( $order->get_id(), 'Tax Exempt Name', true );
+		
+		if ($taxExemptName) {
         ?>
         <h3>Tax Exempt Details</h3>
-        <p><strong><?php _e('Tax Exempt Name:', 'woocommerce'); ?></strong> <?php echo get_post_meta( $order->get_id(), 'Tax Exempt Name', true ); ?></p>
+        <p><strong><?php _e('Tax Exempt Name:', 'woocommerce'); ?></strong> <?php echo $taxExemptName; ?></p>
         <p><strong><?php _e('Tax Exempt Id:', 'woocommerce'); ?></strong> <?php echo get_post_meta( $order->get_id(), 'Tax Exempt Id', true ); ?></p>
         <?php
+		}
     }
 	
-	public function howheard_custom_invoice_fields( $order ) {
+	public function howheard_custom_invoice_fields( $order, $sent_to_admin ) {
+		if ( $sent_to_admin == false ) {
+            return;
+        }
         ?>
-        <h3>Tax Exempt Details</h3>
-        <p><strong><?php _e('How did you hear about us?:', 'woocommerce'); ?></strong> <?php echo get_post_meta( $order->get_id(), 'How did you hear about us?', true ); ?></p>
+        <h3>How did you hear about us?</h3>
+        <p><?php echo get_post_meta( $order->get_id(), 'How did you hear about us?', true ); ?></p>
         <?php
     }
     
